@@ -1,5 +1,5 @@
 clc; close; clear;
-[data,Fs] = audioread('drum.mp3');
+[data,Fs] = audioread('Weightless.wav');
 
 %initial audio has a sampling rate of 44100 Hz.
 %generate time domain Onset signal strength
@@ -7,7 +7,7 @@ data = (data(:,1) + data(:,1))/2;
 data = data(3*Fs:13*Fs);
 
 player = audioplayer(data, Fs);
-data = downsample(data,20);
+
 % play(player);
 % stop(player);
 N = length(data);
@@ -23,7 +23,7 @@ ya = hilbert(data);
 plot(tAxis,abs(ya));
 grid on;
 hold on;
-stem(tAxis,pks);
+
 
 %%
 play(player);
@@ -41,13 +41,38 @@ grid on;
 hold on;
 stem(tAxis,npks);
 
-%%
-% K = looking window
-K = 3;
-for i = 1:length(npks)
-    if pks(i) > pks(i:i+K-2)  
-        temp = pks(i);        
-    end
-end
 
+%%
+K = 5;
+Peaks = movmax(abs(ya),K);
+
+
+plot(tAxis,abs(ya));
+grid on;
+hold on;
+plot(tAxis,Peaks);
+
+meanPeaks = movmean(Peaks,K);
+
+plot(tAxis,meanPeaks);
+grid on;
+hold on;
+plot(tAxis,Peaks);
+
+%%
+
+threshold = 0.7; 
+elementsToSetToZero = Peaks < threshold;
+Peaks(elementsToSetToZero ) = 0;
+player2 = audioplayer(Peaks, Fs);
+
+play(player2);
+counter = 0;
+
+for i = 1:length(Peaks)
+    if Peaks(i) ~= 0
+        fprintf('beat \n');
+        counter = counter + 1;
+    end        
+end
 
